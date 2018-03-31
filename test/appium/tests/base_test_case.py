@@ -13,7 +13,6 @@ from views.base_view import BaseView
 
 
 class AbstractTestCase:
-
     __metaclass__ = ABCMeta
 
     @property
@@ -68,9 +67,9 @@ class AbstractTestCase:
         desired_caps['ignoreUnimportantViews'] = False
         return desired_caps
 
-    def update_capabilities_sauce_lab(self, key, value):
+    def update_capabilities_sauce_lab(self, new_capabilities: dict):
         caps = self.capabilities_sauce_lab.copy()
-        caps[key] = value
+        caps.update(new_capabilities)
         return caps
 
     @property
@@ -173,17 +172,18 @@ class SauceMultipleDeviceTestCase(AbstractTestCase):
     def setup_method(self, method):
         self.drivers = dict()
 
-    def create_drivers(self, quantity=2):
-        if self.__class__.__name__ == 'TestOfflineMessages':
-            capabilities = self.update_capabilities_sauce_lab('platformVersion', '6.0')
-        else:
-            capabilities = self.capabilities_sauce_lab
-        self.drivers = self.loop.run_until_complete(start_threads(quantity, webdriver.Remote,
-                                                    self.drivers,
-                                                    self.executor_sauce_lab,
-                                                    capabilities))
+    def create_drivers(self, quantity=2, max_duration=1800, custom_implicitly_wait=None, offline_mode=False):
+        capabilities = {'maxDuration': max_duration}
+        if offline_mode:
+            capabilities['platformVersion'] = '6.0'
+        self.drivers = self.loop.run_until_complete(start_threads(quantity,
+                                                                  webdriver.Remote,
+                                                                  self.drivers,
+                                                                  self.executor_sauce_lab,
+                                                                  self.update_capabilities_sauce_lab(capabilities)))
         for driver in range(quantity):
-            self.drivers[driver].implicitly_wait(self.implicitly_wait)
+            self.drivers[driver].implicitly_wait(
+                custom_implicitly_wait if custom_implicitly_wait else self.implicitly_wait)
             BaseView(self.drivers[driver]).accept_agreements()
             test_suite_data.current_test.testruns[-1].jobs.append(self.drivers[driver].session_id)
 
@@ -214,4 +214,3 @@ class MultipleDeviceTestCase(environments[pytest.config.getoption('env')]):
         for user in self.senders:
             self.network_api.faucet(address=self.senders[user]['address'])
         super(MultipleDeviceTestCase, self).teardown_method(method)
-

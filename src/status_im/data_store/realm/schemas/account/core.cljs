@@ -11,4 +11,3 @@
               {:schema        v2/schema
                :schemaVersion 2
                :migration     v2/migration}])
-

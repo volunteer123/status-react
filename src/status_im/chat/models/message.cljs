@@ -106,10 +106,6 @@
 (def ^:private- add-single-message (partial add-message false))
 (def ^:private- add-batch-message (partial add-message true))
 
-(defn- prepare-chat [chat-id {:keys [db now] :as cofx}]
-  (chat-model/upsert-chat {:chat-id chat-id
-                           :timestamp now} cofx))
-
 (defn- send-message-seen [chat-id message-id send-seen? cofx]
   (when send-seen?
     (transport/send (protocol/map->MessagesSeen {:message-ids #{message-id}}) chat-id cofx)))

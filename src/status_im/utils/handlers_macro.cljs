@@ -4,8 +4,7 @@
 
 (defn update-db [cofx fx]
   (cond-> cofx
-    (:db fx) (assoc :db (:db fx))
-    (:data-store/tx fx) (assoc :data-store/tx (:data-store/tx fx))))
+    (:db fx) (assoc :db (:db fx))))
 
 (def ^:private mergable-keys
   #{:data-store/tx :data-store/base-tx :chat-received-message/add-fx

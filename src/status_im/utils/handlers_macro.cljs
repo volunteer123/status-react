@@ -3,8 +3,9 @@
   (:require [clojure.set :as set]))
 
 (defn update-db [cofx fx]
-  (cond-> cofx
-    (:db fx) (assoc :db (:db fx))))
+  (if-let [db (:db fx)]
+    (assoc cofx :db db)
+    db))
 
 (def ^:private mergable-keys
   #{:data-store/tx :data-store/base-tx :chat-received-message/add-fx

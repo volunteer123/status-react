@@ -1,5 +1,6 @@
 (ns status-im.test.chat.models
   (:require [cljs.test :refer-macros [deftest is testing]]
+            [status-im.utils.clocks :as utils.clocks]
             [status-im.chat.models :as chat]))
 
 (deftest upsert-chat-test
@@ -120,13 +121,14 @@
                                                   :messages {}
                                                   :deleted-at-clock-value 100))]
         (is (= 100 (get-in actual [:db :chats chat-id :deleted-at-clock-value])))))
-    (testing "it leaves the deleted-at-clock-value unchanged when no messages & no previous deleted-at-clock-value"
-      (let [actual (chat/clear-history chat-id
-                                       (update-in cofx
-                                                  [:db :chats chat-id]
-                                                  assoc
-                                                  :messages {}))]
-        (is (= nil (get-in actual [:db :chats chat-id :deleted-at-clock-value])))))
+    (testing "it set the deleted-at-clock-value to now the chat has no messages nor previous deleted-at"
+      (with-redefs [utils.clocks/send (constantly 42)]
+        (let [actual (chat/clear-history chat-id
+                                         (update-in cofx
+                                                    [:db :chats chat-id]
+                                                    assoc
+                                                    :messages {}))]
+          (is (= 42 (get-in actual [:db :chats chat-id :deleted-at-clock-value]))))))
     (testing "it adds the relevant transactions for realm"
       (let [actual (chat/clear-history chat-id cofx)]
         (is (:data-store/tx actual))

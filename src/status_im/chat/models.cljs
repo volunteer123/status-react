@@ -2,6 +2,7 @@
   (:require [status-im.ui.components.styles :as styles]
             [status-im.utils.gfycat.core :as gfycat]
             [status-im.transport.utils :as transport.utils]
+            [status-im.utils.clocks :as utils.clocks]
             [status-im.transport.message.core :as transport.message]
             [status-im.data-store.chats :as chats-store]
             [status-im.transport.message.v1.group-chat :as transport.group-chat]
@@ -78,7 +79,9 @@
                                           vals
                                           (sort-by (comp unchecked-negate :clock-value))
                                           first
-                                          :clock-value) deleted-at-clock-value)]
+                                          :clock-value)
+                                     deleted-at-clock-value
+                                     (utils.clocks/send 0))]
     ;; Necessary until we adjust merge-fx to cater for :txs
     (-> (select-keys cofx [:data-store/tx :db])
         (assoc-in [:db :chats chat-id :messages] {})

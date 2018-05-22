@@ -1,4 +1,4 @@
-(ns status-im.transport.receive-impl
+(ns status-im.transport.impl.receive
   (:require
    [status-im.chat.models.group-chat :as models.group-chat]
    [status-im.ui.screens.contacts.core :as contacts]

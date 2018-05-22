@@ -11,6 +11,7 @@
             [status-im.utils.handlers :as handlers]
             [status-im.utils.hex :as utils.hex]
             [status-im.utils.money :as money]
+            [status-im.utils.security :as security]
             [status-im.utils.types :as types]
             [status-im.utils.utils :as utils]
             [status-im.constants :as constants]
@@ -315,8 +316,8 @@
 
 (handlers/register-handler-fx
  :wallet.send/set-password
- (fn [{:keys [db]} [_ password]]
-   {:db (assoc-in db [:wallet :send-transaction :password] password)}))
+ (fn [{:keys [db]} [_ masked-password]]
+   {:db (assoc-in db [:wallet :send-transaction :password] (security/unmask masked-password))}))
 
 (handlers/register-handler-fx
  :wallet.send/set-signing?

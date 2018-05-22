@@ -5,7 +5,6 @@
             [re-frame.interceptor :refer [->interceptor get-coeffect get-effect]]
             [status-im.utils.instabug :as instabug]
             [status-im.utils.mixpanel :as mixpanel]
-            [status-im.utils.security :as security]
             [cljs.core.async :as async]
             [taoensso.timbre :as log]))
 

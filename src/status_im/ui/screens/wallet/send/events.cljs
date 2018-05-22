@@ -21,8 +21,9 @@
 
 (re-frame/reg-fx
  ::accept-transaction
- (fn [{:keys [password id on-completed]}]
-   (status/approve-sign-requests (list id) password on-completed)))
+ (fn [{:keys [masked-password id on-completed]}]
+   ;; unmasking the password as late as possible to avoid being exposed from app-db
+   (status/approve-sign-requests (list id) (security/unmask masked-password) on-completed)))
 
 (defn- send-ethers [{:keys [web3 from to value gas gas-price]}]
   (.sendTransaction (.-eth web3)
@@ -171,9 +172,9 @@
              (let [{:keys [password]} (get-in db [:wallet :send-transaction])
                    new-db'            (update-in new-db [:wallet :send-transaction] merge sending-db)] ; just update sending state as we are in wallet flow
                {:db                  new-db'
-                ::accept-transaction {:id           id
-                                      :password     password
-                                      :on-completed on-transactions-completed}})))
+                ::accept-transaction {:id              id
+                                      :masked-password password
+                                      :on-completed    on-transactions-completed}})))
           ;;SIGN MESSAGE
          (= method constants/web3-personal-sign)
 
@@ -260,9 +261,9 @@
          network (:network db)
          {:keys [amount id password to symbol method gas gas-price]} (get-in db [:wallet :send-transaction])]
      (if id
-       {::accept-transaction {:id           id
-                              :password     password
-                              :on-completed on-transactions-completed}
+       {::accept-transaction {:id              id
+                              :masked-password password
+                              :on-completed    on-transactions-completed}
         :db                  (assoc-in db' [:wallet :send-transaction :in-progress?] true)}
        {:db                (update-in db' [:wallet :send-transaction] assoc
                                       :waiting-signal? true
@@ -283,9 +284,9 @@
  (fn [{db :db} _]
    (let [{:keys [id password]} (get-in db [:wallet :send-transaction])]
      {:db                  (assoc-in db [:wallet :send-transaction :in-progress?] true)
-      ::accept-transaction {:id           id
-                            :password     password
-                            :on-completed on-transactions-modal-completed}})))
+      ::accept-transaction {:id              id
+                            :masked-password password
+                            :on-completed    on-transactions-modal-completed}})))
 
 (defn discard-transaction
   [{:keys [db]}]
@@ -317,7 +318,7 @@
 (handlers/register-handler-fx
  :wallet.send/set-password
  (fn [{:keys [db]} [_ masked-password]]
-   {:db (assoc-in db [:wallet :send-transaction :password] (security/unmask masked-password))}))
+   {:db (assoc-in db [:wallet :send-transaction :password] masked-password)}))
 
 (handlers/register-handler-fx
  :wallet.send/set-signing?

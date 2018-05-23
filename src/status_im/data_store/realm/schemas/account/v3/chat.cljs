@@ -1,4 +1,4 @@
-(ns status-im.data-store.realm.schemas.account.v2.chat
+(ns status-im.data-store.realm.schemas.account.v3.chat
   (:require [status-im.ui.components.styles :refer [default-chat-color]]))
 
 (def schema {:name       :chat

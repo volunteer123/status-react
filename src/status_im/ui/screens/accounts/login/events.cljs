@@ -12,7 +12,7 @@
 
 ;;;; FX
 
-(reg-fx ::stop-node (fn [] (status/stop-node)))
+(reg-fx ::stop-node (fn [] (println "STOPPING NODE") (status/stop-node)))
 
 (reg-fx
  ::login
@@ -72,7 +72,10 @@
 
 (defn wrap-with-initialize-geth-fx [db address password]
   (let [{:keys [network config]} (get-network-by-address db address)]
-    {:initialize-geth-fx config
+    (println "CONFIG" config)
+    {:initialize-geth-fx (assoc config  :LogLevel "DEBUG"
+                                :ClusterConfig {:Enabled true
+                                                :BootNodes ["enode://12312312@192.200.20.20:3000"]})
      :db                 (assoc db :network network
                                 :node/after-start [::login-account address password])}))
 
@@ -90,6 +93,7 @@
 (register-handler-fx
  :login-account
  (fn [{{:keys [network status-node-started?] :as db} :db} [_ address password]]
+   (println "STARTED" status-node-started?)
    (let [{account-network :network} (get-network-by-address db address)
          db'     (-> db
                      (assoc-in [:accounts/login :processing] true))

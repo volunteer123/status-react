@@ -116,7 +116,7 @@
 
 (defn- add-received-message
   [batch?
-   {:keys [from message-id chat-id content content-type timestamp clock-value to-clock-value js-obj] :as message}
+   {:keys [from message-id chat-id content content-type timestamp clock-value to-clock-value] :as message}
    {:keys [db now] :as cofx}]
   (let [{:keys [web3
                 current-chat-id
@@ -133,8 +133,6 @@
         new-timestamp                             (or timestamp now)
         add-message-fn                            (if batch? add-batch-message add-single-message)]
     (handlers-macro/merge-fx cofx
-                             {:confirm-message-processed [{:web3   web3
-                                                           :js-obj js-obj}]}
                              (add-message-fn (cond-> (assoc message :timestamp new-timestamp)
                                                public-key
                                                (assoc :user-statuses {public-key (if current-chat? :seen :received)})

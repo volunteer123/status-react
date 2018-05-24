@@ -22,21 +22,30 @@
   (let [{:keys [payload sig]} (js->clj js-message :keywordize-keys true)
         status-message (-> payload
                            transport.utils/to-utf8
-                           transit/deserialize
-                           (assoc :js-obj js-message))]
+                           transit/deserialize)]
     (when (and sig status-message)
       (message/receive status-message (or chat-id sig) sig cofx))))
 
-(defn- js-array->list [array]
+(defn- js-array->seq [array]
   (for [i (range (.-length array))]
     (aget array i)))
 
+(defn- add-messages-confirmation [fx js-messages]
+  ;; TODO janherich: we are ignoring `:data-store/base-tx` queue, revisit later
+  (if-let [transactions (:data-store/tx fx)]
+    (update fx :data-store/tx conj
+            (fn [_]
+              (re-frame/dispatch [::confirm-messages-processed js-messages])))
+    fx))
+
 (defn receive-whisper-messages [cofx [js-error js-messages chat-id]]
-  (handlers-macro/merge-effects
-   cofx
-   (fn [message temp-cofx]
-     (receive-message temp-cofx chat-id message))
-   (js-array->list js-messages)))
+  (let [js-messages-seq (js-array->seq js-messages)
+        fx              (handlers-macro/merge-effects
+                         cofx
+                         (fn [message temp-cofx]
+                           (receive-message temp-cofx chat-id message))
+                         js-messages-seq)]
+    (add-messages-confirmation fx js-messages-seq)))
 
 (handlers/register-handler-fx
  :protocol/receive-whisper-message
@@ -162,17 +171,17 @@
        fx))))
 
 (re-frame/reg-fx
- ;; TODO(rasom): confirmMessagesProcessed should be called after :data-store/tx
- ;; effect, so this effect should be rewritten/removed
- :confirm-message-processed
- (fn [messages]
-   (let [{:keys [web3]} (first messages)
-         js-messages (->> messages
-                          (keep :js-obj)
-                          (apply array))]
-     (when (pos? (.-length js-messages))
-       (.confirmMessagesProcessed (transport.utils/shh web3)
-                                  js-messages
-                                  (fn [err resp]
-                                    (when err
-                                      (log/info "Confirming message processed failed"))))))))
+ ::confirm-messages-processed
+ (fn [[web3 js-messages]]
+   (when (pos? (.-length js-messages))
+     (.confirmMessagesProcessed (transport.utils/shh web3)
+                                js-messages
+                                (fn [err resp]
+                                  (when err
+                                    (log/info "Confirming messages processed failed")))))))
+
+(handlers/register-handler-fx
+ ::confirm-messages-processed
+ [re-frame/trim-v]
+ (fn [{{:keys [web3]} :db} [js-messages]]
+   {::confirm-messages-processed [web3 js-messages]}))

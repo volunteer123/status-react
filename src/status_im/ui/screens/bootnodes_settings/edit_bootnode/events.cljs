@@ -6,29 +6,29 @@
             [status-im.ui.screens.accounts.utils :as accounts.utils]
             [status-im.utils.ethereum.core :as ethereum]
             [status-im.utils.types :as types]
+            [status-im.utils.inbox :as utils.inbox]
             [status-im.data-store.bootnodes :as data-store.bootnodes]))
 
-(defn- new-bootnode [id bootnode-name address]
-  (assoc :address address
-         :id (string/replace id "-" "")
-         :name bootnode-name))
+(defn- new-bootnode [id bootnode-name address chain]
+  {:address address
+   :chain chain
+   :id (string/replace id "-" "")
+   :name bootnode-name})
 
 (defn save-new-bootnode [{{:bootnodes/keys [manage] :account/keys [account] :as db} :db :as cofx} _]
   (let [{:keys [name url]} manage
-        network            (get (:networks (:account/account db)) (:network db))
-        chain              (ethereum/network->chain-keyword network)
+        network            (:network db)
         bootnode         (new-bootnode
-                            (string/replace (:random-id cofx) "-" "")
-                            (:value name)
-                            (:value url))]
-    {:db (-> db
-             (dissoc :bootnodes/manage)
-             (assoc-in [:inbox/wnodes chain (:id bootnode)] bootnode))
-     :data-store/tx [(data-store.bootnodes/save-bootnode-tx (assoc
-                                                                 bootnode
-                                                                 :chain
-                                                                 chain))]
-     :dispatch [:navigate-back]}))
+                          (string/replace (:random-id cofx) "-" "")
+                          (:value name)
+                          (:value url)
+                          network)
+        new-bootnodes    (assoc-in (:bootnodes account) [network (:id bootnode)] bootnode)]
+
+    (handlers-macro/merge-fx cofx
+                             {:db       (dissoc db :bootnodes/manage)
+                              :dispatch [:navigate-back]}
+                             (accounts.utils/account-update {:bootnodes new-bootnodes}))))
 
 (handlers/register-handler-fx
  :save-new-bootnode
@@ -39,9 +39,9 @@
  :bootnode-set-input
  (fn [{db :db} [_ input-key value]]
    {:db (update db :bootnodes/manage assoc input-key {:value value
-                                                        :error (if (= input-key :name)
-                                                                 (string/blank? value)
-                                                                 (not (utils.inbox/valid-enode-address? value)))})}))
+                                                      :error (if (= input-key :name)
+                                                               (string/blank? value)
+                                                               (not (utils.inbox/valid-enode-address? value)))})}))
 
 (handlers/register-handler-fx
  :edit-bootnode

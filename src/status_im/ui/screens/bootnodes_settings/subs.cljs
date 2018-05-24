@@ -3,9 +3,13 @@
             status-im.ui.screens.bootnodes-settings.edit-bootnode.subs
             [status-im.utils.ethereum.core :as ethereum]))
 
+(re-frame/reg-sub :settings/bootnodes-enabled
+                  :<- [:get :account/account]
+                  (fn [account]
+                    (let [{:keys [network settings]} account]
+                      (get-in settings [:bootnodes network]))))
+
 (re-frame/reg-sub :settings/network-bootnodes
-                  :<- [:network]
-                  :<- [:get :bootnodes/bootnodes]
-                  (fn [[network wnodes]]
-                    (let [chain (ethereum/network->chain-keyword network)]
-                      (chain wnodes))))
+                  :<- [:get :account/account]
+                  (fn [account]
+                    (get-in account [:bootnodes (:network account)])))

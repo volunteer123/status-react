@@ -13,7 +13,6 @@
             status-im.ui.screens.profile.db
             status-im.ui.screens.network-settings.db
             status-im.ui.screens.offline-messaging-settings.db
-            status-im.ui.screens.bootnodes-settings.db
             status-im.ui.screens.browser.db
             status-im.ui.screens.add-new.db
             status-im.ui.screens.add-new.new-public-chat.db))
@@ -173,6 +172,7 @@
                  :networks/networks
                  :networks/manage
                  :mailservers/manage
+                 :bootnodes/manage
                  :node/after-start
                  :node/after-stop
                  :inbox/wnodes

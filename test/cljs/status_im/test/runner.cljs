@@ -33,7 +33,9 @@
             [status-im.test.utils.async]
             [status-im.test.utils.datetime]
             [status-im.test.utils.mixpanel]
-            [status-im.test.utils.prices]))
+            [status-im.test.utils.prices]
+            [status-im.test.ui.screens.bootnodes-settings.edit-bootnode.events]
+            [status-im.test.ui.screens.accounts.login.events]))
 
 (enable-console-print!)
 
@@ -77,4 +79,6 @@
  'status-im.test.utils.transducers
  'status-im.test.utils.datetime
  'status-im.test.utils.mixpanel
- 'status-im.test.utils.prices)
+ 'status-im.test.utils.prices
+ 'status-im.test.ui.screens.bootnodes-settings.edit-bootnode.events
+ 'status-im.test.ui.screens.accounts.login.events)

@@ -5,9 +5,13 @@
 
 (spec/def ::not-blank-string (spec/and string? seq))
 
-(spec/def :bootnode/address :not-blank-string)
+(spec/def :bootnode/address ::not-blank-string)
 (spec/def :bootnode/name ::not-blank-string)
 (spec/def :bootnode/id ::not-blank-string)
-(spec/def :bootnode/bootnode (allowed-keys :req-un [:bootnode/address :bootnode/name :bootnode/id]))
+(spec/def :bootnode/chain ::not-blank-string)
+(spec/def :bootnode/bootnode (allowed-keys :req-un [:bootnode/chain
+                                                    :bootnode/address
+                                                    :bootnode/name
+                                                    :bootnode/id]))
 
-(spec/def :bootnodes/bootnodes (spec/nilable (spec/map-of keyword? (spec/map-of :bootnode/id :bootnode/bootnode))))
+(spec/def :bootnodes/bootnodes (spec/nilable (spec/map-of :bootnode/id (spec/map-of :bootnode/id :bootnode/bootnode))))

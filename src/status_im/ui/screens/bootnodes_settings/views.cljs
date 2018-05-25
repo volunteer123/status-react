@@ -13,10 +13,6 @@
             [status-im.ui.screens.profile.components.views :as profile.components]
             [status-im.ui.screens.bootnodes-settings.styles :as styles]))
 
-(defn- bootnode-icon [connected?]
-  [react/view (styles/bootnode-icon connected?)
-   [vector-icons/icon :icons/bootnode {:color (if connected? :white :gray)}]])
-
 (defn navigate-to-add-bootnode []
   (re-frame/dispatch [:edit-bootnode]))
 
@@ -46,7 +42,6 @@
         :value     bootnodes-enabled
         :action-fn #(re-frame/dispatch [:toggle-custom-bootnodes %])}]]
      [react/view styles/wrapper
-
       [list/flat-list {:data               (vals bootnodes)
                        :default-separator? false
                        :key-fn             :id

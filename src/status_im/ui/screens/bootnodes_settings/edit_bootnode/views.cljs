@@ -8,13 +8,12 @@
    [status-im.ui.components.common.common :as components.common]
    [status-im.ui.components.status-bar.view :as status-bar]
    [status-im.ui.components.toolbar.view :as toolbar]
-   [status-im.ui.components.list.views :as list]
    [status-im.ui.components.text-input.view :as text-input]
    [status-im.ui.screens.bootnodes-settings.edit-bootnode.styles :as styles]))
 
 (views/defview edit-bootnode []
   (views/letsubs [manage-bootnode [:get-manage-bootnode]
-                  is-valid?         [:manage-bootnode-valid?]]
+                  is-valid?       [:manage-bootnode-valid?]]
     [react/view components.styles/flex
      [status-bar/status-bar]
      [react/keyboard-avoiding-view components.styles/flex

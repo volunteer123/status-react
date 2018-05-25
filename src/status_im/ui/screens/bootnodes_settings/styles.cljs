@@ -23,21 +23,3 @@
              :letter-spacing -0.2
              :line-height    20}
    :android {:font-size 16}})
-
-(defstyle bootnode-item-connected-text
-  {:color   colors/gray
-   :ios     {:font-size      14
-             :margin-top     6
-             :letter-spacing -0.2}
-   :android {:font-size  12
-             :margin-top 2}})
-
-(defn bootnode-icon [connected?]
-  {:width            40
-   :height           40
-   :border-radius    20
-   :background-color (if connected?
-                       colors/blue
-                       colors/gray-light)
-   :align-items      :center
-   :justify-content  :center})

@@ -6,12 +6,13 @@
 (deftest login-account
   (let [mainnet-account {:network "mainnet_rpc"
                          :networks {"mainnet_rpc" {:config  {:NetworkId 1}}}}
-        testnet-account  {:network "testnet_rpc"
-                          :networks {"testnet_rpc" {:config  {:NetworkId 3}}}}
-        accounts {"mainnet" mainnet-account
-                  "testnet" testnet-account}
-        initial-db {:db {:network "mainnet_rpc"
-                         :accounts/accounts accounts}}]
+        testnet-account {:network "testnet_rpc"
+                         :networks {"testnet_rpc" {:config  {:NetworkId 3}}}}
+        accounts        {"mainnet" mainnet-account
+                         "testnet" testnet-account}
+        initial-db      {:db {:network "mainnet_rpc"
+                              :accounts/accounts accounts}}]
+
     (testing "status-go has not started"
       (let [actual (events/login-account initial-db [nil "testnet" "password"])]
         (testing "it starts status-node if it has not started"
@@ -20,6 +21,7 @@
                   actual))))
         (testing "it logins the user after the node started"
           (is (= [::events/login-account "testnet" "password"] (get-in actual [:db :node/after-start]))))))
+
     (testing "status-go has started & the user is on mainnet"
       (let [db (assoc-in initial-db [:db :status-node-started?] true)
             actual (events/login-account
@@ -29,6 +31,7 @@
           (is (not (:initialize-geth-fx actual))))
         (testing "it logs in the user"
           (is (= ["mainnet" "password"] (::events/login actual))))))
+
     (testing "the user has selected a different network"
       (testing "status-go has started"
         (let [db     (assoc-in initial-db [:db :status-node-started?] true)
@@ -39,6 +42,7 @@
             (is (get-in actual [:db :node/after-stop] [::events/start-node "testnet" "password"])))
           (testing "it stops status-node"
             (is (contains? actual ::events/stop-node)))))
+
       (testing "status-go has not started"
         (let [actual (events/login-account
                       initial-db
@@ -47,6 +51,7 @@
             (is (= {:NetworkId 3} (:initialize-geth-fx actual))))
           (testing "it logins the user after the node started"
             (is (= [::events/login-account "testnet" "password"] (get-in actual [:db :node/after-start])))))))
+
     (testing "custom bootnodes"
       (let [custom-bootnodes {"a" {:id "a"
                                    :name "name-a"
@@ -54,10 +59,11 @@
                               "b" {:id "b"
                                    :name "name-b"
                                    :address "address-b"}}
-            bootnodes-db (assoc-in
-                          initial-db
-                          [:db :accounts/accounts "mainnet" :bootnodes]
-                          {"mainnet_rpc" custom-bootnodes})]
+            bootnodes-db     (assoc-in
+                              initial-db
+                              [:db :accounts/accounts "mainnet" :bootnodes]
+                              {"mainnet_rpc" custom-bootnodes})]
+
         (testing "custom bootnodes enabled"
           (let [bootnodes-enabled-db (assoc-in
                                       bootnodes-db
@@ -84,6 +90,7 @@
                           :NetworkId 1} (:initialize-geth-fx actual))))
                 (testing "it logins the user after the node started"
                   (is (= [::events/login-account "mainnet" "password"] (get-in actual [:db :node/after-start]))))))))
+
         (testing "custom bootnodes not enabled"
           (testing "status-node has started"
             (let [db (assoc-in bootnodes-db [:db :status-node-started?] true)

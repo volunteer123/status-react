@@ -6,24 +6,23 @@
             [status-im.ui.screens.accounts.utils :as accounts.utils]
             [status-im.utils.ethereum.core :as ethereum]
             [status-im.utils.types :as types]
-            [status-im.utils.inbox :as utils.inbox]
-            [status-im.data-store.bootnodes :as data-store.bootnodes]))
+            [status-im.utils.inbox :as utils.inbox]))
 
 (defn- new-bootnode [id bootnode-name address chain]
   {:address address
-   :chain chain
-   :id (string/replace id "-" "")
-   :name bootnode-name})
+   :chain   chain
+   :id      (string/replace id "-" "")
+   :name    bootnode-name})
 
 (defn save-new-bootnode [{{:bootnodes/keys [manage] :account/keys [account] :as db} :db :as cofx} _]
   (let [{:keys [name url]} manage
         network            (:network db)
-        bootnode         (new-bootnode
-                          (string/replace (:random-id cofx) "-" "")
-                          (:value name)
-                          (:value url)
-                          network)
-        new-bootnodes    (assoc-in (:bootnodes account) [network (:id bootnode)] bootnode)]
+        bootnode           (new-bootnode
+                            (:random-id cofx)
+                            (:value name)
+                            (:value url)
+                            network)
+        new-bootnodes      (assoc-in (:bootnodes account) [network (:id bootnode)] bootnode)]
 
     (handlers-macro/merge-fx cofx
                              {:db       (dissoc db :bootnodes/manage)

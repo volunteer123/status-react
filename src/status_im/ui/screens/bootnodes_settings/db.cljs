@@ -1,9 +1,10 @@
 (ns status-im.ui.screens.bootnodes-settings.db
   (:require-macros [status-im.utils.db :refer [allowed-keys]])
   (:require
+   [clojure.string :as string]
    [cljs.spec.alpha :as spec]))
 
-(spec/def ::not-blank-string (spec/and string? seq))
+(spec/def ::not-blank-string (complement string/blank?))
 
 (spec/def :bootnode/address ::not-blank-string)
 (spec/def :bootnode/name ::not-blank-string)

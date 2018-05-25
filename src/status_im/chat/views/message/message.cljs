@@ -85,14 +85,14 @@
                       :font  :default}
           (or preview (str params))])])))
 
-(defview message-timestamp [t justify-timestamp?]
-  [react/text {:style (style/message-timestamp justify-timestamp?)} t])
+(defview message-timestamp [t justify-timestamp? outgoing]
+  [react/text {:style (style/message-timestamp justify-timestamp? outgoing)} t])
 
 (defn message-view
-  [{:keys [timestamp-str] :as message} content {:keys [justify-timestamp?]}]
+  [{:keys [timestamp-str outgoing] :as message} content {:keys [justify-timestamp?]}]
   [react/view (style/message-view message)
    content
-   [message-timestamp timestamp-str justify-timestamp?]])
+   [message-timestamp timestamp-str justify-timestamp? outgoing]])
 
 (def replacements
   {"\\*[^*]+\\*" {:font-weight :bold}
@@ -179,12 +179,12 @@
 (def cached-parse-text (memoize parse-text))
 
 (defn text-message
-  [{:keys [content timestamp-str] :as message}]
+  [{:keys [content timestamp-str outgoing] :as message}]
   [message-view message
    (let [parsed-text (cached-parse-text content :browse-link-from-message)]
      [react/text {:style (style/text-message message)}
       parsed-text
-      [react/text {:style style/message-timestamp-placeholder} (timestamp-with-padding timestamp-str)]])
+      [react/text {:style (style/message-timestamp-placeholder outgoing)} (timestamp-with-padding timestamp-str)]])
    {:justify-timestamp? true}])
 
 (defn emoji-message

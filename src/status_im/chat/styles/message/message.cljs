@@ -48,8 +48,8 @@
             :align-self     align
             :align-items    align})))
 
-(defn message-timestamp [justify-timestamp?]
-  (merge {:color      colors/gray
+(defn message-timestamp [justify-timestamp? outgoing]
+  (merge {:color      (if outgoing colors/wild-blue-yonder colors/gray)
           :font-size  10
           :align-self :flex-end
           :opacity    0.5}
@@ -57,9 +57,9 @@
                                    :bottom   10
                                    :right    12})))
 
-(def message-timestamp-placeholder
-  (assoc (message-timestamp false)
-         :color styles/color-white))
+(defn message-timestamp-placeholder [outgoing]
+  (assoc (message-timestamp false outgoing)
+         :color (if outgoing colors/hawkes-blue styles/color-white)))
 
 (def selected-message
   {:margin-top  18
@@ -144,7 +144,7 @@
           :padding-bottom     8
           :border-radius      8}
          (when-not (= content-type constants/content-type-emoji)
-           {:background-color styles/color-white})
+           {:background-color (if outgoing colors/hawkes-blue styles/color-white)})
          (when (= content-type constants/content-type-command)
            {:padding-top    10
             :padding-bottom 14})))
@@ -304,5 +304,6 @@
 (def message-author-name
   {:font-size      12
    :letter-spacing -0.2
+   :padding-top    6
    :padding-bottom 4
    :color          colors/gray})

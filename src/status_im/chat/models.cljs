@@ -85,7 +85,7 @@
     ;; Necessary until we adjust merge-fx to cater for :txs
     (-> (select-keys cofx [:data-store/tx :db])
         (assoc-in [:db :chats chat-id :messages] {})
-        (assoc-in [:chats current-chat-id :message-groups] {})
+        (assoc-in [:db :chats chat-id :message-groups] {})
         (assoc-in [:db :chats chat-id :deleted-at-clock-value] last-message-clock-value)
         (update :data-store/tx concat [(chats-store/clear-history-tx chat-id last-message-clock-value)
                                        (messages-store/delete-messages-tx chat-id)]))))

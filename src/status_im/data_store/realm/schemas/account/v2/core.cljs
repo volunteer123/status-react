@@ -17,7 +17,6 @@
              request/schema
              mailserver/schema
              user-status/schema
-             contact-group/schema
              local-storage/schema
              browser/schema])
 

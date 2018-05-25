@@ -34,9 +34,7 @@
       [toolbar/content-title (i18n/label :t/bootnodes-settings)]
       [toolbar/actions
        [(toolbar.actions/add false navigate-to-add-bootnode)]]]
-     [react/view {:style {:height 50
-                          :background-color "white"
-                          :padding-left 15}}
+     [react/view styles/switch-container
       [profile.components/settings-switch-item
        {:label-kw  :t/bootnodes-enabled
         :value     bootnodes-enabled

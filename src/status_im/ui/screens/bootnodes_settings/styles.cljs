@@ -23,3 +23,8 @@
              :letter-spacing -0.2
              :line-height    20}
    :android {:font-size 16}})
+
+(defstyle switch-container
+  {:height           50
+   :background-color colors/white
+   :padding-left     15})

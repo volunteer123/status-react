@@ -204,14 +204,19 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
             }
         }
 
-        String config = Statusgo.GenerateConfig(testnetDataDir, 3);
+        String config;
         try {
             JSONObject customConfig = new JSONObject(defaultConfig);
+
+            String dataDir = root + customConfig.get("DataDir");
+
+            config = Statusgo.GenerateConfig(dataDir, customConfig.getInt("NetworkId"));
+
             JSONObject jsonConfig = new JSONObject(config);
 
             String gethLogFilePath = prepareLogsFile();
             boolean logsEnabled = (gethLogFilePath != null) && !TextUtils.isEmpty(this.logLevel);
-            String dataDir = root + customConfig.get("DataDir");
+
             jsonConfig.put("LogEnabled", (gethLogFilePath != null && logsEnabled));
             jsonConfig.put("LogFile", gethLogFilePath);
             jsonConfig.put("LogLevel", TextUtils.isEmpty(this.logLevel) ? "ERROR" : this.logLevel.toUpperCase());
@@ -236,10 +241,22 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
             } catch (Exception e) {
 
             }
+            try {
+                Object clusterConfig = customConfig.get("ClusterConfig");
+                if (clusterConfig != null) {
+                    Log.d(TAG, "ClusterConfig is not null");
+                    jsonConfig.put("ClusterConfig", clusterConfig);
+                }
+            } catch (Exception e) {
+              Log.w(TAG, "Something went wrong parsing cluster config" + e.getMessage());
+            }
+
+
             jsonConfig.put("KeyStoreDir", newKeystoreDir);
 
             config = jsonConfig.toString();
         } catch (JSONException e) {
+            config = Statusgo.GenerateConfig(testnetDataDir, 3);
             Log.d(TAG, "Something went wrong " + e.getMessage());
             Log.d(TAG, "Default configuration will be used");
         }

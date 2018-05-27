@@ -24,7 +24,7 @@ var StatusHttpProvider = function (host, timeout) {
 
 StatusHttpProvider.prototype.isStatus = true;
 
-function syncResponse(payload, result){
+function web3Response(payload, result){
     return {id: payload.id,
             jsonrpc: "2.0",
             result: result};
@@ -33,11 +33,11 @@ function syncResponse(payload, result){
 StatusHttpProvider.prototype.send = function (payload) {
     //TODO to be compatible with MM https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#dizzy-all-async---think-of-metamask-as-a-light-client
     if (payload.method == "eth_accounts"){
-        return syncResponse(payload, [currentAccountAddress])
+        return web3Response(payload, [currentAccountAddress])
     } else if (payload.method == "eth_coinbase"){
-        return syncResponse(payload, currentAccountAddress)
+        return web3Response(payload, currentAccountAddress)
     } else if (payload.method == "net_version"){
-        return syncResponse(payload, networkId)
+        return web3Response(payload, networkId)
     } else {
         alert('You tried to send "' + payload.method + '" synchronously. Synchronous requests are not supported, sorry.');
         return null;
@@ -53,18 +53,23 @@ StatusHttpProvider.prototype.prepareRequest = function () {
 };
 
 function sendAsync(payload, callback) {
-    var messageId = callbackId++;
-    callbacks[messageId] = callback;
-    if (typeof StatusBridge == "undefined") {
-        var data = {
-            payload: JSON.stringify(payload),
-            callbackId: JSON.stringify(messageId),
-            host: this.host
-        };
+    if (payload.method == "eth_coinbase"){
+        callback(null, web3Response(payload, currentAccountAddress));
+    }
+    else {
+        var messageId = callbackId++;
+        callbacks[messageId] = callback;
+        if (typeof StatusBridge == "undefined") {
+            var data = {
+                payload: JSON.stringify(payload),
+                callbackId: JSON.stringify(messageId),
+                host: this.host
+            };
 
-        webkit.messageHandlers.sendRequest.postMessage(JSON.stringify(data));
-    } else {
-        StatusBridge.sendRequest(this.host, JSON.stringify(messageId), JSON.stringify(payload));
+            webkit.messageHandlers.sendRequest.postMessage(JSON.stringify(data));
+        } else {
+            StatusBridge.sendRequest(this.host, JSON.stringify(messageId), JSON.stringify(payload));
+        }
     }
 };
 

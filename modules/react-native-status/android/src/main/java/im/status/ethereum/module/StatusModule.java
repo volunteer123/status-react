@@ -183,6 +183,8 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
             }
         }
 
+
+        int testnetNetworkId = 3;
         String testnetDataDir = root + "/ethereum/testnet";
         String oldKeystoreDir = testnetDataDir + "/keystore";
         String newKeystoreDir = root + "/keystore";
@@ -256,7 +258,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
 
             config = jsonConfig.toString();
         } catch (JSONException e) {
-            config = Statusgo.GenerateConfig(testnetDataDir, 3);
+            config = Statusgo.GenerateConfig(testnetDataDir, testnetNetworkId);
             Log.d(TAG, "Something went wrong " + e.getMessage());
             Log.d(TAG, "Default configuration will be used");
         }

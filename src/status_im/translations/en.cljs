@@ -621,6 +621,7 @@
    :bootnodes-settings                   "Bootnodes settings"
    :bootnodes-enabled                    "Bootnodes enabled"
    :bootnode-address                     "Bootnode address"
+   :add-bootnode                         "Add bootnode"
    :specify-bootnode-address             "Specify bootnode address"
 
    :mainnet-warning-title                "Warning!"

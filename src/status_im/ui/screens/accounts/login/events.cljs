@@ -87,8 +87,8 @@
                     use-custom-bootnodes)
                    (add-custom-bootnodes network bootnodes))]
     {:use-custom-bootnodes use-custom-bootnodes
-     :network network
-     :config  config}))
+     :network              network
+     :config               config}))
 
 (defn wrap-with-initialize-geth-fx [db address password]
   (let [{:keys [network config]} (get-network-by-address db address)]

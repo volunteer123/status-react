@@ -86,7 +86,8 @@
                             bootnodes-enabled-db
                             [nil "mainnet" "password"])]
                 (testing "it adds bootnodes to the config"
-                  (is (= {:ClusterConfig {:BootNodes ["address-a" "address-b"]}
+                  (is (= {:ClusterConfig {:Enabled   true
+                                          :BootNodes ["address-a" "address-b"]}
                           :NetworkId 1} (:initialize-geth-fx actual))))
                 (testing "it logins the user after the node started"
                   (is (= [::events/login-account "mainnet" "password"] (get-in actual [:db :node/after-start]))))))))

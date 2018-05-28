@@ -69,7 +69,8 @@
                     (vals $)
                     (map :address $))]
     (if (seq bootnodes)
-      (assoc config :ClusterConfig {:BootNodes bootnodes})
+      (assoc config :ClusterConfig {:Enabled   true
+                                    :BootNodes bootnodes})
       config)))
 
 (defn get-network-by-address [db address]
